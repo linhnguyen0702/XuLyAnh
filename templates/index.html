@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hệ thống Nhận diện Biểu cảm</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Hệ thống Nhận diện Biểu cảm</h1>
+        <p class="subtitle">Phân tích cảm xúc khuôn mặt theo thời gian thực</p>
+      </header>
+
+      <div class="main-content">
+        <!-- Left Panel - Detection Area -->
+        <div class="left-panel">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="webcam">
+              <i class="fas fa-video"></i> Webcam
+            </button>
+            <button class="tab-btn" data-tab="image">
+              <i class="fas fa-image"></i> Ảnh
+            </button>
+            <button class="tab-btn" data-tab="video">
+              <i class="fas fa-film"></i> Video
+            </button>
+          </div>
+
+          <div class="content-area">
+            <!-- Webcam Tab -->
+            <div class="tab-content active" id="webcam-tab">
+              <div class="video-container">
+                <img id="webcam-feed" src="" alt="" />
+                <div class="placeholder" id="webcam-placeholder">
+                  <i class="fas fa-video-slash"></i>
+                  <p>Webcam chưa được kích hoạt</p>
+                  <p class="hint">
+                    Nhấn "Bắt đầu" để hệ thống bắt đầu nhận diện.
+                  </p>
+                </div>
+              </div>
+              <div class="webcam-controls">
+                <button class="btn-primary" id="start-webcam">
+                  <i class="fas fa-play"></i> Bắt đầu
+                </button>
+              </div>
+            </div>
+
+            <!-- Image Tab -->
+            <div class="tab-content" id="image-tab">
+              <div class="video-container">
+                <img id="image-preview" src="" alt="" style="display: none" />
+                <div class="placeholder" id="image-placeholder">
+                  <i class="fas fa-image"></i>
+                  <p>Chưa có ảnh nào được tải lên</p>
+                  <p class="hint">Chọn một ảnh để phân tích biểu cảm.</p>
+                </div>
+              </div>
+              <div class="upload-controls">
+                <input
+                  type="file"
+                  id="image-upload"
+                  accept="image/*"
+                  style="display: none"
+                />
+                <button class="btn-primary" id="select-image">
+                  <i class="fas fa-upload"></i> Chọn ảnh
+                </button>
+                <button
+                  class="btn-secondary"
+                  id="analyze-image"
+                  style="display: none"
+                >
+                  <i class="fas fa-search"></i> Phân tích
+                </button>
+              </div>
+            </div>
+
+            <!-- Video Tab -->
+            <div class="tab-content" id="video-tab">
+              <div class="video-container">
+                <video
+                  id="video-preview"
+                  controls
+                  style="display: none"
+                ></video>
+                <img id="video-stream-preview" src="" alt="Video Analysis Stream" style="display: none;">
+                <canvas id="video-canvas" style="display: none"></canvas>
+                <div class="placeholder" id="video-placeholder">
+                  <i class="fas fa-film"></i>
+                  <p>Chưa có video nào được tải lên</p>
+                  <p class="hint">Chọn một video để phân tích biểu cảm.</p>
+                </div>
+              </div>
+              <div class="upload-controls">
+                <input
+                  type="file"
+                  id="video-upload"
+                  accept="video/*"
+                  style="display: none"
+                />
+                <button class="btn-primary" id="select-video">
+                  <i class="fas fa-upload"></i> Chọn video
+                </button>
+                <button
+                  class="btn-secondary"
+                  id="analyze-video"
+                  style="display: none"
+                >
+                  <i class="fas fa-search"></i> Phân tích
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel - Analytics -->
+        <div class="right-panel">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="analytics">
+              <i class="fas fa-chart-pie"></i> Phân tích
+            </button>
+            <button class="tab-btn" data-tab="history">
+              <i class="fas fa-history"></i> Lịch sử
+            </button>
+            <button class="tab-btn" data-tab="settings">
+              <i class="fas fa-cog"></i> Cài đặt
+            </button>
+          </div>
+
+          <div class="content-area">
+            <!-- Analytics Tab -->
+            <div class="tab-content active" id="analytics-tab">
+              <div class="empty-state">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Chưa có dữ liệu phân tích</h3>
+                <p>
+                  Kết quả phân tích thống kê sẽ được hiển thị ở đây sau khi bạn
+                  chạy phiên nhận diện.
+                </p>
+              </div>
+
+              <div id="analytics-content" style="display: none">
+                <div class="stat-cards">
+                  <div class="stat-card">
+                    <p class="stat-label">Thời gian</p>
+                    <p class="stat-value" id="session-time">0s</p>
+                  </div>
+                  <div class="stat-card">
+                    <p class="stat-label">Tổng nhận diện</p>
+                    <p class="stat-value" id="total-detections">0</p>
+                  </div>
+                </div>
+
+                <div class="chart-container">
+                  <h4>Phân bổ cảm xúc</h4>
+                  <canvas id="emotion-chart"></canvas>
+                </div>
+
+                <div class="legend-container" id="emotion-legend">
+                  <!-- Legend items will be generated by JS -->
+                </div>
+
+                <button class="btn-danger" id="reset-data">
+                  <i class="fas fa-trash"></i> Xóa dữ liệu & làm mới
+                </button>
+              </div>
+            </div>
+
+            <!-- History Tab -->
+            <div class="tab-content" id="history-tab">
+              <div class="empty-state">
+                <i class="fas fa-history"></i>
+                <h3>Chưa có lịch sử</h3>
+                <p>Lịch sử phân tích sẽ được lưu lại ở đây.</p>
+              </div>
+              <div id="history-content" style="display: none"></div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings-tab">
+              <div class="settings-content">
+                <h3>Cài đặt hệ thống</h3>
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="show-confidence" checked />
+                    Hiển thị độ tin cậy
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="show-bbox" checked />
+                    Hiển thị khung nhận diện
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" id="save-history" checked />
+                    Lưu lịch sử phân tích
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <label for="detection-interval"
+                    >Tần suất phân tích (ms):</label
+                  >
+                  <input
+                    type="range"
+                    id="detection-interval"
+                    min="100"
+                    max="1000"
+                    value="500"
+                    step="100"
+                  />
+                  <span id="interval-value">500</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
