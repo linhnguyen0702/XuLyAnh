@@ -255,3 +255,36 @@ class VideoCamera(object):
         
         # Trả về frame đã encode (bytes) và danh sách cảm xúc
         return jpeg.tobytes(), emotions_detected
+
+
+if __name__ == "__main__":
+    # Chế độ chạy trực tiếp để debug: hiển thị cửa sổ phân tích thời gian thực
+    # Chạy: python camera.py
+    cam = None
+    try:
+        cam = VideoCamera(show_debug_window=True, enable_terminal_log=True)
+        cam.reset_collected_frames()
+
+        print("Bắt đầu webcam. Nhấn 'q' để dừng và hiển thị cửa sổ debug.")
+        while True:
+            jpeg_bytes, emotions = cam.get_frame()
+
+            # Decode JPEG bytes thành ảnh BGR để hiển thị bằng OpenCV
+            np_arr = np.frombuffer(jpeg_bytes, dtype=np.uint8)
+            frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+            # Hiển thị frame
+            cv2.imshow('Emotion Analysis', frame)
+
+            # Nhấn 'q' để thoát
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break
+
+    except Exception as e:
+        print(f"Lỗi khi mở camera: {e}")
+    finally:
+        # Giải phóng camera và đóng cửa sổ
+        if cam is not None:
+            cam.release()
+        cv2.destroyAllWindows()
